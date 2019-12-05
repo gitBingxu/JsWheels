@@ -1,47 +1,39 @@
 class TreeNode {
   static counter = 0
-  constructor(label, pid = -1){
-      this.pid = pid
-      this.id = TreeNode.counter++
-      this.label = label
-      this.children = []
+  constructor(label, pid){
+    this.pid = pid
+    this.id = TreeNode.counter++
+    this.label = label
+    this.children = []
   }
 }
 
-const handler = {
-  apply: function(target, that, args) {
-      if (target(...args) === -1) {
-          const node = args[0]
-          const props = args[1]
-          node.children.push(new TreeNode(props, node.id))
-      }
-      return target(...args)
-  }
-}
-  
-function fn (node, props) {
+function getIndex (node, label) {
   const index = node.children.findIndex(item => {
-      return item.label === props
+    return item.label === label
   })
+  if (index < 0) {
+    node.children.push(new TreeNode(label, node.id))
+    return getIndex(node, label)
+  }
   return index
 }
 
-const getIndex = new Proxy(fn, handler)
-
-function getNode (source, condition) {
-  let node
+function getNode (tree, condition, obj) {
+  let node = tree
+  const conditions = JSON.parse(JSON.stringify(condition))
   while (condition.length) {
-      const index = getIndex(source, condition[0])
-      node = source.children[index]
-      condition.shift()
+    node = node.children[getIndex(node, obj[conditions[0]])]
+    conditions.shift()
   }
   return node
 }
 
-function array2tree (source, ...condition) {
-  let target = new TreeNode('root')
+function arrayTotree (source, ...condition) {
+  const root = new TreeNode('root', -1)
   source.forEach(item => {
-      getNode(source, condition).children.push(item)
+    getNode(root, condition, item).children.push(item)
   })
-  return target
+  return root
 }
+
