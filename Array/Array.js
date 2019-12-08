@@ -21,19 +21,21 @@ function getIndex (node, label) {
 
 function getNode (tree, condition, obj) {
   let node = tree
-  const conditions = JSON.parse(JSON.stringify(condition))
-  while (condition.length) {
-    node = node.children[getIndex(node, obj[conditions[0]])]
-    conditions.shift()
-  }
+  condition.forEach(item => {
+    node = node.children[getIndex(node, obj[item])]
+  })
   return node
 }
 
-function arrayTotree (source, ...condition) {
+function arrayTotree (source, label, ...condition) {
   const root = new TreeNode('root', -1)
   source.forEach(item => {
-    getNode(root, condition, item).children.push(item)
+    const node = getNode(root, condition, item)
+    node.children.push(new TreeNode(item[label], node.id))
   })
   return root
 }
 
+export {
+  arrayTotree
+}
