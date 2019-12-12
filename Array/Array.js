@@ -1,19 +1,19 @@
 class TreeNode {
   static counter = 0
-  constructor(label, pid){
+  constructor(label, pid, id = -1){
     this.pid = pid
-    this.id = TreeNode.counter++
+    this.id = id || TreeNode.counter++
     this.label = label
     this.children = []
   }
 }
 
-function getIndex (node, label) {
+function getIndex (node, label, id) {
   const index = node.children.findIndex(item => {
     return item.label === label
   })
   if (index < 0) {
-    node.children.push(new TreeNode(label, node.id))
+    node.children.push(new TreeNode(label, node.id, id))
     return getIndex(node, label)
   }
   return index
@@ -22,7 +22,7 @@ function getIndex (node, label) {
 function getNode (tree, condition, obj) {
   let node = tree
   condition.forEach(item => {
-    node = node.children[getIndex(node, obj[item])]
+    node = node.children[getIndex(node, obj[item], obj['id'])]
   })
   return node
 }
